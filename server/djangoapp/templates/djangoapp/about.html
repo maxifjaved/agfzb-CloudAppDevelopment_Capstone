@@ -28,13 +28,15 @@
       <a class="p-2 text-dark" href="{% url 'djangoapp:contact' %}">Contact Us</a>
     </nav>
     <div>
-      <form class="form-inline" action="" method="POST">
-        <input class="form-control mx-2" placeholder="Username/Email" name="usr" type="text"/>
+      <form class="form-inline" action="{% url 'djangoapp:login' %}" method="POST">
+        <input class="form-control mx-2" placeholder="Username/Email" name="username" type="text"/>
         <input class="form-control mx-2" placeholder="Password" name="psw" type="password"/>
+
+        {% csrf_token %}
         <button type="submit" class="btn btn-primary mx-2">Login</button>
       </form>
     </div>
-    <a class="btn btn-outline-primary" href="{% url 'djangoapp:signup' %}">Sign up</a>
+    <a class="btn btn-outline-primary" href="{% url 'djangoapp:registration' %}">Sign up</a>
   {% endif %}
 </div>
 <h1>
