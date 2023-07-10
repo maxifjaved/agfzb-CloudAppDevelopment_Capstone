@@ -37,7 +37,7 @@
     <a class="btn btn-outline-primary" href="{% url 'djangoapp:registration' %}">Sign up</a>
   {% endif %}
 </div>
-<div>
+<div class="container">
   <h4 class="mb-5"> Add a review for <strong>{{ dealer.full_name }}</strong></h4>
   <form action="{% url 'djangoapp:add_review' dealer.id %}" method="post">
     {% csrf_token %}
@@ -86,5 +86,10 @@
   </div>
 </footer>
 
+<script type="text/javascript">
+  $('.date-own').datepicker({
+    format: 'mm/dd/yyyy'
+  });
+</script>
 </body>
 </html>

@@ -9,10 +9,16 @@ from django.contrib import messages
 from datetime import datetime
 import logging
 import json
-
+# import os
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+
+# sample_data_dir = os.path.dirname(os.path.realpath(__file__))
+# sample_data_file_path = os.path.join(sample_data_dir, '../sample.json')
+#
+# with open(sample_data_file_path) as f:
+#   sample_data = json.load(f)
 
 # Create your views here.
 
@@ -97,30 +103,34 @@ def get_dealerships(request):
     # Get dealers from the URL
     dealerships = get_dealers_from_cf(url)
     # Concat all dealer's short name
-    dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
-    context['dealer_names'] = dealer_names
+    # dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+    context['dealership_list'] = dealerships
+    # context['dealership_list'] = sample_data['dealerships']['body']
     # Return a list of dealer short name
     return render(request, 'djangoapp/index.html', context)
 
 # Create a `get_dealer_details` view to render the reviews of a dealer
-def get_dealer_details(request, dealer_id):
+def get_dealer_details(request, id):
   if request.method == "GET":
     context = {}
     dealer_url = "https://jp-tok.functions.appdomain.cloud/api/v1/web/8767a390-c1a2-4465-adee-608645d9cc2b/dealership-package/get-dealership"
-    dealer = get_dealer_by_id_from_cf(dealer_url, id=dealer_id)
+    dealer = get_dealer_by_id_from_cf(dealer_url, id=id)
     context["dealer"] = dealer
+    # context["dealer"] = sample_data['dealerships']['body'][14]
     review_url = "https://jp-tok.functions.appdomain.cloud/api/v1/web/8767a390-c1a2-4465-adee-608645d9cc2b/dealership-package/get-review"
-    reviews = get_dealer_reviews_from_cf(review_url, id=dealer_id)
+    reviews = get_dealer_reviews_from_cf(review_url, id=id)
     context["reviews"] = reviews
+    # context["reviews"] = sample_data['review']['body']
 
     return render(request, 'djangoapp/dealer_details.html', context)
 
 # Create a `add_review` view to submit a review
-def add_review(request, dealer_id):
+def add_review(request, id):
   context = {}
   dealer_url = "https://jp-tok.functions.appdomain.cloud/api/v1/web/2e1cc6b1-4125-4ddf-983a-23203b79e5e7/dealership-package/get-dealership"
-  dealer = get_dealer_by_id_from_cf(dealer_url, id=dealer_id)
+  dealer = get_dealer_by_id_from_cf(dealer_url, id=id)
   context["dealer"] = dealer
+  # context["dealer"] = sample_data['dealerships']['body'][14]
   if request.method == 'GET':
     # Get cars for the dealer
     cars = CarModel.objects.all()
@@ -137,8 +147,8 @@ def add_review(request, dealer_id):
       car = CarModel.objects.get(pk=car_id)
       payload["time"] = datetime.utcnow().isoformat()
       payload["name"] = username
-      payload["dealership"] = dealer_id
-      payload["id"] = dealer_id
+      payload["dealership"] = id
+      payload["id"] = id
       payload["review"] = request.POST["content"]
       payload["purchase"] = False
       if "purchasecheck" in request.POST:
@@ -152,5 +162,5 @@ def add_review(request, dealer_id):
       new_payload = {}
       new_payload["review"] = payload
       review_post_url = "https://jp-tok.functions.appdomain.cloud/api/v1/web/8767a390-c1a2-4465-adee-608645d9cc2b/dealership-package/post-review"
-      post_request(review_post_url, new_payload, id=dealer_id)
-    return redirect("djangoapp:dealer_details", id=dealer_id)
+      post_request(review_post_url, new_payload, id=id)
+    return redirect("djangoapp:dealer_details", id=id)
